@@ -1,10 +1,20 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
 
-all: helper
+ALL: helper.c create_pipe.c
 
-helper: helper.c
-	$(CC) $(CFLAGS) -o helper helper.c
+target: helper
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@
+
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f helper
+	rm -f $(OBJ) $(TARGET)
