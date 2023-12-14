@@ -8,47 +8,47 @@
 #define SIZE 1024
 
 
-void create_pipe(int sf){
-    int p[2];
+void create_pipe(int file){
+    int pipes[2];
     char buf[SIZE];
 
-    if(pipe(p) == -1){
+    if(pipe(pipes) == -1){
         printf("Pipe creation failed");
         exit(1);
     }
 
     pid_t pid = fork();
 
-    if(pid < 0){
+    if(pid < 0){ // Checks if the fork process succeeded
         printf("Failed to fork");
         exit(1);
     }
 
     if (pid > 0){ // Parent process
-        close(p[1]);
+        close(pipes[1]);
 
-        if (dup2(p[0], STDIN_FILENO) == -1){
+        if (dup2(pipes[0], STDIN_FILENO) == -1){
             printf("dup2 failed");
             exit(1);
         }
 
-        close(p[0]);
+        close(pipes[0]);
 
-        while ((fgets(buf, 1024, stdin)) != NULL){
+        while ((fgets(buf, SIZE, stdin)) != NULL){
             printf("Data received through pipe %s", buf);
         }
  
         wait(NULL); // Waits for the child process to terminate
     } else{ // Child process
-        close(p[0]);
+        close(pipes[0]);
 
-        if(dup2(p[1], STDOUT_FILENO) == -1){
+        if(dup2(pipes[1], STDOUT_FILENO) == -1){
             printf("dup2 failed");
         }
 
-        close(p[1]);
+        close(pipes[1]);
 
-        if(dup2(sf, STDIN_FILENO) == -1){
+        if(dup2(file, STDIN_FILENO) == -1){
             printf("dup2 failed");
             exit(1);
         }
@@ -59,17 +59,17 @@ void create_pipe(int sf){
 }
 
 int main(int argc, char* argv[]){
-    int sf;
+    int file;
 
-    if((sf = open(argv[1], O_RDONLY)) < 0){ // Opens the file and checks for errors
+    if((file = open(argv[1], O_RDONLY)) < 0){ // Opens the file and checks for errors
         printf("Error opening file\n");
         exit (1);
     }
     printf("Creating pipe\n");
-    create_pipe(sf); // Calls the function to create the transfer 
+    create_pipe(file); // Calls the function to create the transfer 
     printf("Transfer complete\n");
 
-    close(sf);
+    close(file);
 
     return 0;
 }
