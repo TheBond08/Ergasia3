@@ -1,9 +1,11 @@
-CC = gcc
+cc = gcc
 CFLAGS = -Wall -Wextra
 
-ALL: helper.c create_pipe.c
+ALL = mypipe.c create_pipe.c
 
-target: helper
+OBJ = $(ALL:.c=.o)
+
+TARGET = mypipe
 
 .PHONY: all clean
 
